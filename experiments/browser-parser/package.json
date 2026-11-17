@@ -1,0 +1,19 @@
+{
+  "name": "plugin-preview-browser-proof",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@php-wasm/universal": "3.1.65",
+    "@php-wasm/web-8-4": "3.1.65",
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "python3 -m http.server 4180 --bind 127.0.0.1 --directory dist"
+  },
+  "engines": {
+    "node": ">=24.18.0",
+    "npm": ">=11.16.0"
+  }
+}

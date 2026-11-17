@@ -1,0 +1,31 @@
+{
+  "name": "plugin-page-preview",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Preview a WordPress.org plugin page from a local readme and assets.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs",
+    "test": "node --test tests/browser-client.test.mjs tests/static.test.mjs tests/import.test.mjs tests/wordpress-version.test.mjs tests/github-preview.test.mjs",
+    "test:reference": "node --test tests/parser.test.mjs",
+    "build:production": "npm run build && node scripts/cloudflare-build.mjs production",
+    "build:preview": "npm run build && node scripts/cloudflare-build.mjs preview",
+    "deploy": "npm run build:production && cf deploy --prebuilt --mode production",
+    "deploy:preview": "npm run build:preview && cf previews deploy --prebuilt --mode preview",
+    "test:deployment": "node --test tests/deployment.test.mjs"
+  },
+  "engines": {
+    "node": "^24.22.0 || ^26.12.0",
+    "npm": ">=11.16.0"
+  },
+  "devDependencies": {
+    "@cloudflare/build-output-utils": "1.0.0-rc.0",
+    "@cloudflare/config": "1.0.0-rc.0",
+    "@php-wasm/universal": "3.1.65",
+    "@php-wasm/web-8-4": "3.1.65",
+    "cf": "1.0.0-rc.0",
+    "esbuild": "0.28.2"
+  }
+}

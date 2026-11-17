@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Plugin Page Preview</title>
+    <meta
+      name="description"
+      content="Preview your WordPress.org plugin page before submitting it. Edit your readme, check formatting, and catch parsing warnings."
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="Plugin Page Preview home"
+        ><svg
+          width="28"
+          height="28"
+          viewBox="0 0 28 28"
+          fill="none"
+          aria-hidden="true"
+        >
+          <rect
+            x="3"
+            y="3"
+            width="22"
+            height="22"
+            rx="4"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+          <path
+            d="M3 10h22M10 10v15M7 6.5h1m3 0h1"
+            stroke="currentColor"
+            stroke-width="1.7"
+          /></svg
+        ><span>Plugin Page Preview</span></a
+      ><span class="app-purpose">Check your listing before it goes live.</span>
+      <div class="header-actions">
+        <button id="open-button" class="primary">Open plugin</button
+        ><button id="download" disabled>Download readme</button>
+      </div>
+    </header>
+    <main class="workspace">
+      <section class="editor-pane" aria-label="Readme editor">
+        <div class="pane-heading">
+          <div>
+            <h1 id="readme-filename">readme.txt</h1>
+            <p id="source-name">No plugin loaded</p>
+          </div>
+          <span id="edit-state" class="state">Ready</span>
+        </div>
+        <div class="editor-toolbar">
+          <label for="readme">Source</label><span id="line-count">0 lines</span>
+        </div>
+        <textarea
+          id="readme"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off"
+          aria-label="Readme source"
+          placeholder="Open a plugin folder or paste your readme here."
+        ></textarea>
+        <section class="checks" aria-labelledby="checks-heading">
+          <div class="checks-heading">
+            <h2 id="checks-heading">Preflight</h2>
+            <span id="check-count">Waiting for a readme</span>
+          </div>
+          <div id="check-list">
+            <p class="muted">
+              Parsing warnings and missing assets appear here.
+            </p>
+          </div>
+        </section>
+        <details class="asset-panel">
+          <summary>
+            Listing assets <span id="asset-count">0 files</span>
+          </summary>
+          <p>
+            Use a plugin folder to include its .wordpress-org or SVN assets. You
+            can also add images separately.
+          </p>
+          <button id="add-assets">Add images</button>
+          <ul id="asset-list"></ul>
+        </details>
+      </section>
+      <section class="preview-pane" aria-label="Plugin page preview">
+        <div class="preview-toolbar">
+          <div class="view-switch" aria-label="Preview type">
+            <button id="page-view" class="selected" aria-pressed="true">
+              Plugin page</button
+            ><button id="card-view" aria-pressed="false">Search card</button
+            ><button id="listing-view" aria-pressed="false">
+              Plugins page listing
+            </button>
+          </div>
+          <div class="size-switch" aria-label="Preview width">
+            <button id="desktop" class="selected" aria-pressed="true">
+              Desktop</button
+            ><button id="mobile" aria-pressed="false">Mobile</button>
+          </div>
+          <span id="parse-status" role="status" aria-live="polite"
+            >Open a plugin to begin</span
+          >
+        </div>
+        <div class="preview-stage">
+          <iframe
+            id="preview"
+            title="WordPress.org plugin page preview"
+            sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          ></iframe>
+          <div id="empty-preview">
+            <svg
+              width="56"
+              height="56"
+              viewBox="0 0 56 56"
+              fill="none"
+              aria-hidden="true"
+            >
+              <rect
+                x="7"
+                y="6"
+                width="42"
+                height="44"
+                rx="3"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M7 17h42M15 26h26M15 33h18M15 40h22"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+            </svg>
+            <h2>Your next release, in preview.</h2>
+            <p>
+              See how your plugin reads on WordPress.org.<br />Start with a
+              folder, a file, or a paste. Files stay on your device.
+            </p>
+            <button id="empty-open" class="primary">Open plugin</button>
+          </div>
+        </div>
+        <footer class="preview-footer">
+          <span>WordPress layout approximation · upstream readme parser</span
+          ><span>Accounts, reviews, and install counts are not checked.</span>
+        </footer>
+      </section>
+    </main>
+    <dialog id="open-dialog" aria-labelledby="open-title">
+      <form method="dialog">
+        <button class="close-button" aria-label="Close">×</button>
+      </form>
+      <h2 id="open-title">Open a plugin</h2>
+      <p>
+        Choose your plugin folder to load its readme, banner, icon, and
+        screenshots.
+      </p>
+      <div class="open-options">
+        <button id="choose-folder" class="primary">Choose plugin folder</button
+        ><button id="choose-file">Choose readme file</button>
+      </div>
+      <p class="privacy">
+        Supports readme.txt, with README.md as a fallback when readme.txt is
+        absent. Local files stay on this device. Shared preview links load
+        public files from GitHub. Nothing is uploaded. The app checks
+        WordPress.org for the latest release version. Choose the folder again to
+        refresh its files.
+      </p>
+      <p id="open-error" class="error" role="alert"></p>
+    </dialog>
+    <dialog id="image-dialog">
+      <form method="dialog">
+        <button class="close-button" aria-label="Close screenshot">×</button>
+      </form>
+      <img id="large-image" alt="" />
+      <p id="image-caption"></p>
+    </dialog>
+    <input
+      type="file"
+      id="folder-input"
+      webkitdirectory
+      multiple
+      hidden
+    /><input
+      type="file"
+      id="readme-input"
+      accept=".txt,.md,text/plain,text/markdown"
+      hidden
+    /><input
+      type="file"
+      id="asset-input"
+      accept=".png,.jpg,.jpeg,.gif,.webp,.svg"
+      multiple
+      hidden
+    />
+  </body>
+</html>

@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+*.log
+.impeccable/
+dist/
+
+.cloudflare/
+
+.env
+.env.*
