@@ -2,7 +2,7 @@ import { readPluginFiles } from "./plugin-files.js";
 import { BrowserParser } from "./parser-client.js";
 import { latestWordPressMajor } from "./wordpress-version.js";
 import { collectPreflight } from "./preflight.js";
-import { loadGitHubPlugin, parseGitHubSource } from "./github-source.js";
+import { loadGitHubPlugin, parseGitHubSource, resolveGitHubRepository } from "./github-source.js";
 const $ = (id) => document.getElementById(id);
 const editor = $("readme"),
   frame = $("preview");
@@ -326,6 +326,29 @@ function openDialog() {
 );
 $("choose-folder").addEventListener("click", () => $("folder-input").click());
 $("choose-file").addEventListener("click", () => $("readme-input").click());
+$("github-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const current = ++importSequence;
+  $("open-error").textContent = "";
+  $("open-github").disabled = true;
+  $("github-status").textContent = "Loading public GitHub repository…";
+  $("github-status").hidden = false;
+  try {
+    const source = await resolveGitHubRepository($("github-url").value);
+    if (current !== importSequence) return;
+    const plugin = await loadGitHubPlugin(source);
+    if (current !== importSequence) return;
+    $("open-dialog").close();
+    await adopt(plugin);
+  } catch (error) {
+    if (current !== importSequence) return;
+    $("open-error").textContent = error.message;
+  } finally {
+    $("open-github").disabled = false;
+    $("github-status").hidden = true;
+  }
+});
+$("open-dialog").addEventListener("close", () => { ++importSequence; });
 $("add-assets").addEventListener("click", () => $("asset-input").click());
 $("folder-input").addEventListener("change", (e) => {
   importFiles(e.target.files);

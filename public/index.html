@@ -153,16 +153,27 @@
       </form>
       <h2 id="open-title">Open a plugin</h2>
       <p>
-        Choose your plugin folder to load its readme, banner, icon, and
-        screenshots.
+        Load your plugin’s readme, banner, icon, and screenshots from your
+        device or a public GitHub repository.
       </p>
       <div class="open-options">
         <button id="choose-folder" class="primary">Choose plugin folder</button
         ><button id="choose-file">Choose readme file</button>
       </div>
+      <form id="github-form">
+        <label for="github-url">GitHub repository URL</label>
+        <div class="github-controls">
+          <input id="github-url" type="url" required
+            placeholder="https://github.com/owner/plugin"
+            aria-describedby="github-help" autocomplete="off" spellcheck="false" />
+          <button id="open-github" type="submit">Open repository</button>
+        </div>
+        <p id="github-help">Loads the default branch. The readme must be in the repository’s root folder.</p>
+        <p id="github-status" role="status" hidden></p>
+      </form>
       <p class="privacy">
         Supports readme.txt, with README.md as a fallback when readme.txt is
-        absent. Local files stay on this device. Shared preview links load
+        absent. Local files stay on this device. Repository and shared preview links load
         public files from GitHub. Nothing is uploaded. The app checks
         WordPress.org for the latest release version. Choose the folder again to
         refresh its files.

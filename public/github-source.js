@@ -1,5 +1,35 @@
 import { assetPattern, readPluginFiles } from "./plugin-files.js";
 
+export function parseGitHubRepositoryURL(value) {
+  const message = "Use a repository link such as https://github.com/owner/plugin.";
+  let url;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    throw new Error(message);
+  }
+  if (
+    url.protocol !== "https:" || url.hostname !== "github.com" ||
+    url.port || url.username || url.password
+  ) throw new Error(message);
+  const match = url.pathname.match(/^\/([a-z0-9][a-z0-9-]*)\/([a-z0-9_.-]+)\/?$/i);
+  const name = match?.[2].replace(/\.git$/, "");
+  if (!name || name === "." || name === "..") throw new Error(message);
+  return `${match[1]}/${name}`;
+}
+
+export async function resolveGitHubRepository(value, { fetcher = fetch } = {}) {
+  const repo = parseGitHubRepositoryURL(value);
+  const commits = JSON.parse(await (await boundedFetch(
+    `https://api.github.com/repos/${repo}/commits?per_page=1`,
+    262144,
+    fetcher,
+  )).text());
+  if (!Array.isArray(commits) || !/^[a-f0-9]{40}$/i.test(commits[0]?.sha || ""))
+    throw new Error("GitHub could not find a commit on this repository's default branch.");
+  return parseGitHubSource({ repo, ref: commits[0].sha });
+}
+
 export function parseGitHubSource({ repo, ref, path = "" }) {
   if (
     !/^[a-z0-9][a-z0-9-]*\/[a-z0-9_.-]+$/i.test(repo || "") ||

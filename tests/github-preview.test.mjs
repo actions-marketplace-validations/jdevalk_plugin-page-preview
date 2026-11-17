@@ -4,6 +4,8 @@ import {
   loadGitHubPlugin,
   parseGitHubSource,
   githubPreviewURL,
+  parseGitHubRepositoryURL,
+  resolveGitHubRepository,
 } from "../public/github-source.js";
 import {
   makeComment,
@@ -17,6 +19,51 @@ const json = (body) =>
   new Response(JSON.stringify(body), {
     headers: { "content-type": "application/json" },
   });
+test("repository links accept GitHub URLs and reject other hosts and page URLs", () => {
+  for (const url of [
+    "https://github.com/owner/plugin",
+    " https://github.com/owner/plugin/ ",
+    "https://github.com/owner/plugin.git",
+    "https://github.com/owner/plugin?tab=readme-ov-file#readme",
+  ]) assert.equal(parseGitHubRepositoryURL(url), "owner/plugin");
+  for (const url of [
+    "owner/plugin", "https://example.com/owner/plugin",
+    "https://github.com.evil.test/owner/plugin", "http://github.com/owner/plugin",
+    "https://user:secret@github.com/owner/plugin", "https://github.com:444/owner/plugin",
+    "https://github.com/owner/plugin/tree/main", "https://github.com/owner/plugin/issues",
+    "https://github.com/owner", "https://github.com/owner/.git",
+  ]) assert.throws(() => parseGitHubRepositoryURL(url), /repository link/);
+});
+test("repository URLs resolve the default branch to an immutable import", async () => {
+  const fixture = fakeRepository();
+  const resolved = await resolveGitHubRepository("https://github.com/owner/plugin", {
+    fetcher: async (url, options) => {
+      assert.equal(url, "https://api.github.com/repos/owner/plugin/commits?per_page=1");
+      assert.equal(options.credentials, "omit");
+      assert.equal(options.referrerPolicy, "no-referrer");
+      return json([{ sha }]);
+    },
+  });
+  assert.deepEqual(resolved, source);
+  const plugin = await loadGitHubPlugin(resolved, fixture);
+  assert.match(plugin.readme, /Public Plugin/);
+  assert.ok(fixture.calls.some(({ url }) => url.includes(`/git/trees/${sha}`)));
+});
+test("repository resolution rejects invalid input, empty repositories, and API failures", async () => {
+  await assert.rejects(resolveGitHubRepository("https://example.com/owner/plugin", {
+    fetcher: () => assert.fail("Invalid URLs must not be fetched"),
+  }), /repository link/);
+  for (const body of [[], {}, [{ sha: "main" }]]) {
+    await assert.rejects(resolveGitHubRepository("https://github.com/owner/plugin", {
+      fetcher: async () => json(body),
+    }), /could not find a commit/);
+  }
+  for (const status of [403, 404, 409, 429]) {
+    await assert.rejects(resolveGitHubRepository("https://github.com/owner/plugin", {
+      fetcher: async () => new Response("Unavailable", { status }),
+    }), /request limit|could not load/);
+  }
+});
 function fakeRepository({ privateRepo = false, truncated = false } = {}) {
   const calls = [];
   const contents = {

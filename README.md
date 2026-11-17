@@ -18,6 +18,8 @@ Open the printed HTTP URL, normally `http://127.0.0.1:4173`. The Node process on
 
 Open a plugin with the folder chooser in the browser. Direct `file://` URLs are not supported because browsers restrict module and WebAssembly loading from local files.
 
+You can also paste a public `https://github.com/owner/plugin` repository link into **Open plugin**. This loads the latest commit on the default branch, including the root readme, PHP headers, and listing assets. Private repositories and branch or subfolder URLs are not supported by this field; shared preview links below can target a specific commit and plugin subfolder.
+
 ## What you can check
 
 - Plugin page, search-result card, and WordPress admin Plugins listing at desktop and mobile widths.

@@ -389,6 +389,41 @@ dialog p {
   padding: 12px;
   border-radius: 5px;
 }
+#github-form {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+#github-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 550;
+  margin-bottom: 8px;
+}
+.github-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+#github-url {
+  flex: 1 1 240px;
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #c9ced6;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: inherit;
+  background: white;
+}
+#github-url::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+#github-help,
+#github-status {
+  font-size: 12px;
+  margin: 8px 0 0;
+}
 .error {
   color: #a22828 !important;
   min-height: 10px;
